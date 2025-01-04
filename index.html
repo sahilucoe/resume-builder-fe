@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html ng-app="resumeApp">
+<head>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.8.2/angular.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <link rel="stylesheet" href="resources/styles.css">
+    <script src="resources/script.js"></script>
+</head>
+<body ng-controller="ResumeController">
+<div class="container">
+    <div class="preview" id="resume-preview">
+        <div class="header">
+            <h1>{{resume.name}}</h1>
+            <div class="title">{{resume.title}}</div>
+            <div class="contact-info">
+                <span>    {{resume.email}}</span>
+                <span>    {{resume.phone}}</span>
+                <span>    {{resume.location}}</span>
+                <span>
+                    <a href="{{resume.linkedin}}" class="link">    {{resume.linkedin}}</a>
+                </span>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="work-experience">
+                <div class="section-title">WORK EXPERIENCE</div>
+                <div class="job" ng-repeat="job in resume.jobs track by $index">
+                    <div class="job-title">{{job.title}}</div>
+                    <div class="company">{{job.company}}</div>
+                    <div class="date">{{job.date}}</div>
+                    <ul>
+                        <li ng-repeat="responsibility in job.responsibilities track by $index">{{responsibility}}</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="right-section">
+                <div class="skills">
+                    <div class="section-title">SKILLS</div>
+                    <div class="skills-grid">
+                        <span class="skill-tag" ng-repeat="skill in resume.skills track by $index">{{skill}}</span>
+                    </div>
+                </div>
+
+                <div style="margin-top: 30px;">
+                    <div class="section-title">EDUCATION</div>
+                    <div class="job" ng-repeat="education in resume.education track by $index">
+                        <div class="job-title">{{education.degree}}</div>
+                        <div class="company">{{education.field}}</div>
+                        <div class="company">{{education.university}}</div>
+                        <div class="date">{{education.date}}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="editor">
+        <div class="right-pane-buttons">
+            <button class="reset-button" ng-click="resetForm()">Reset Form</button>
+            <button class="generate-pdf-button" ng-click="generatePDF()">Generate PDF</button>
+        </div>
+        <div class="form-group">
+            <label>Name:</label>
+            <input type="text" ng-model="resume.name" placeholder="Sahil Kumar">
+        </div>
+        <div class="form-group">
+            <label>Title:</label>
+            <input type="text" ng-model="resume.title" placeholder="Senior Software Engineer">
+        </div>
+        <div class="form-group">
+            <label>Email:</label>
+            <input type="email" ng-model="resume.email" placeholder="kamal.sahil@hotmail.com">
+        </div>
+        <div class="form-group">
+            <label>Phone:</label>
+            <input type="tel" ng-model="resume.phone" placeholder="+91-9417214653">
+        </div>
+        <div class="form-group">
+            <label>Location:</label>
+            <input type="text" ng-model="resume.location" placeholder="Hyderabad, India">
+        </div>
+        <div class="form-group">
+            <label>Skills (newline separated):</label>
+            <textarea ng-model="skillsText" ng-change="updateSkills()"
+                      placeholder="Java, C#, .NET MVC, SQL, AWS Services, Redis, Messaging Queues, RESTful services, Git, Subversion, Web APIs, TDD, BDD, Grafana, Unit / Integration Testing, SOLID principles, Lead testing, Multithreading, Code Review"></textarea>
+        </div>
+        <div class="form-group">
+            <label>Work Experience:</label>
+            <div class="form-array" ng-repeat="job in resume.jobs track by $index">
+                <div class="form-group">
+                    <label>Title:</label>
+                    <input type="text" ng-model="job.title" placeholder="Software Engineer 2">
+                </div>
+                <div class="form-group">
+                    <label>Company:</label>
+                    <input type="text" ng-model="job.company" placeholder="Amazon Web Services">
+                </div>
+                <div class="form-group">
+                    <label>Date:</label>
+                    <input type="text" ng-model="job.date" placeholder="09/2022 - Present">
+                </div>
+                <div class="form-group">
+                    <label>Responsibilities (newline separated):</label>
+                    <textarea ng-model="job.responsibilitiesText" ng-change="updateResponsibilities(job)"
+                              placeholder="Worked as a part of AWS RDS SQL Server Team, Led key projects, Hands on involvement in writing design documents..."></textarea>
+                </div>
+                <button ng-click="removeJob($index)">Remove</button>
+            </div>
+            <button ng-click="addJob()">Add Work Experience</button>
+        </div>
+        <div class="form-group">
+            <label>Education:</label>
+            <div class="form-array" ng-repeat="education in resume.education track by $index">
+                <div class="form-group">
+                    <label>Degree:</label>
+                    <input type="text" ng-model="education.degree" placeholder="Bachelor of Technology in">
+                </div>
+                <div class="form-group">
+                    <label>Specialization:</label>
+                    <input type="text" ng-model="education.field" placeholder="Computer Engineering">
+                </div>
+                <div class="form-group">
+                    <label>University:</label>
+                    <input type="text" ng-model="education.university" placeholder="Punjabi University">
+                </div>
+                <div class="form-group">
+                    <label>Date:</label>
+                    <input type="text" ng-model="education.date" placeholder="06/2013 - 06/2017">
+                </div>
+                <button ng-click="removeEducation($index)">Remove</button>
+            </div>
+            <button ng-click="addEducation()">Add Education</button>
+        </div>
+    </div>
+</div>
+</body>
+</html>
