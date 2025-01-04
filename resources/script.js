@@ -1,12 +1,12 @@
  angular.module('resumeApp', [])
-    .controller('ResumeController', function($scope) {
+    .controller('ResumeController', function($scope, $timeout) {
         $scope.data = {
             name: 'Sahil Kumar',
             title: 'Senior Software Engineer',
             email: 'kansal.sahil@hotmail.com',
             phone: '+91-9876543210',
             location: 'Hyderabad, India',
-            linkedin: 'linkedin.com/in/sahilucoe',
+            linkedin: 'https://linkedin.com/in/sahilucoe',
             skills: ['Java', 'C#, .NET MVC', 'SQL', 'AWS Services', 'Redis', 'Messaging Queues', 'RESTful services',
                     'Git, Subversion', 'Web APIs', 'TDD', 'BDD', 'Grafana', 'Unit / Integration Testing',
                     'SOLID principles', 'Lead testing', 'Multithreading', 'Code Review'],
@@ -121,15 +121,16 @@ Helped team hire, develop junior engineers.`
         // PDF generation function
         $scope.generatePDF = function() {
             const element = document.getElementById('resume-preview');
+            // Apply PDF mode class
+//            element.classList.add('pdf-mode');
+
             const opt = {
-                enableLinks: true,
-                margin: 1,
+                margin: 2,
                 filename: 'resume.pdf',
                 image: { type: 'jpeg', quality: 1 },
                 html2canvas: {
                     scale: 2,
-//                    useCORS: true,
-//                    logging: false
+//                    windowWidth: 210 * 2.83465, // Convert mm to px for consistency
                 },
                 jsPDF: {
                     unit: 'mm',
@@ -138,7 +139,14 @@ Helped team hire, develop junior engineers.`
                 }
             };
 
-            // Generate PDF
-            html2pdf().set(opt).from(element).save();
+            try {
+                // Generate PDF
+                html2pdf().set(opt).from(element).save();
+            } finally {
+                // Remove PDF mode class after generation
+//                $timeout(() => {
+//                    element.classList.remove('pdf-mode');
+//                }, 1000);
+            }
         };
     });
