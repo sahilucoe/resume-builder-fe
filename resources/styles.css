@@ -30,63 +30,77 @@ li { margin-bottom: 8px; }
 .reset-button {background-color: #dc3545;}
 .link{color:white}
 .pdf-button {
-            background-color: #28a745;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-        .pdf-button:hover {
-            background-color: #218838;
-        }
-        .pdf-button i {
-            width: 18px;
-            height: 18px;
-        }
+    background-color: #28a745;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+.pdf-button:hover {
+    background-color: #218838;
+}
+.pdf-button i {
+    width: 18px;
+    height: 18px;
+}
 
-        /* PDF Generation Class */
-        .pdf-mode {
-            width: 210mm !important;
-            height: 297mm !important;
-            padding: 20mm !important;
-            overflow: hidden !important;
-            position: fixed !important;
-            top: 50% !important;
-            left: 50% !important;
-            transform: translate(-50%, -50%) !important;
-            z-index: -1 !important;
-            background: white !important;
-            margin: 0 !important;
-        }
+/* PDF Generation Class */
+.pdf-mode {
+    width: 210mm !important;
+    height: 297mm !important;
+    padding: 20mm !important;
+    overflow: hidden !important;
+    position: fixed !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    z-index: -1 !important;
+    background: white !important;
+    margin: 0 !important;
+}
 
-        .pdf-mode .header {
-            padding: 15mm 0 0 !important;
-        }
+.pdf-mode .header {
+    padding: 15mm 0 0 !important;
+}
 
-        .pdf-mode .header h1 {
-            font-size: 24pt !important;
-            padding: 0 5mm !important;
-        }
+.pdf-mode .header h1 {
+    font-size: 24pt !important;
+    padding: 0 5mm !important;
+}
 
-        .pdf-mode .contact-info {
-            padding: 3mm 0 !important;
-            margin-top: 5mm !important;
-            font-size: 10pt !important;
-        }
+.pdf-mode .contact-info {
+    padding: 3mm 0 !important;
+    margin-top: 5mm !important;
+    font-size: 10pt !important;
+}
 
-        .pdf-mode .main-content {
-            padding: 5mm !important;
-            gap: 5mm !important;
-        }
+.pdf-mode .main-content {
+    padding: 5mm !important;
+    gap: 5mm !important;
+}
 
-        .pdf-mode .section-title {
-            margin-bottom: 3mm !important;
-            font-size: 12pt !important;
-        }
+.pdf-mode .section-title {
+    margin-bottom: 3mm !important;
+    font-size: 12pt !important;
+}
 
-        .pdf-mode .job-title {
-            font-size: 11pt !important;
-        }
+.pdf-mode .job-title {
+    font-size: 11pt !important;
+}
 
-        .pdf-mode .company {
-            font-size: 10pt !important;
-        }
+.pdf-mode .company {
+    font-size: 10pt !important;
+}
+
+#nprogress .bar {
+    background: #28a745;
+    height: 3px;
+}
+#nprogress .spinner-icon {
+    border-top-color: #28a745;
+    border-left-color: #28a745;
+}
+.pdf-mode {
+    width: 210mm !important;
+    padding: 20mm !important;
+    background: white !important;
+}

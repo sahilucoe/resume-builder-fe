@@ -1,5 +1,6 @@
  angular.module('resumeApp', [])
     .controller('ResumeController', function($scope, $timeout) {
+        var { jsPDF } = window.jspdf;
         $scope.data = {
             name: 'Sahil Kumar',
             title: 'Senior Software Engineer',
@@ -118,35 +119,52 @@ Helped team hire, develop junior engineers.`
             }
         };
 
-        // PDF generation function
         $scope.generatePDF = function() {
-            const element = document.getElementById('resume-preview');
-            // Apply PDF mode class
-//            element.classList.add('pdf-mode');
-
-            const opt = {
-                margin: 2,
-                filename: 'resume.pdf',
-                image: { type: 'jpeg', quality: 1 },
-                html2canvas: {
-                    scale: 2,
-//                    windowWidth: 210 * 2.83465, // Convert mm to px for consistency
-                },
-                jsPDF: {
-                    unit: 'mm',
-                    format: 'a4',
-                    orientation: 'portrait'
-                }
-            };
-
-            try {
-                // Generate PDF
-                html2pdf().set(opt).from(element).save();
-            } finally {
-                // Remove PDF mode class after generation
-//                $timeout(() => {
-//                    element.classList.remove('pdf-mode');
-//                }, 1000);
-            }
+            NProgress.start();
+            var element = document.getElementById('resume-preview');
+            html2canvas(element,{
+                    scale: 2,  // Increase scale for better quality
+                    useCORS: true,  // Enable CORS if external resources are used
+                    scrollX: 0,
+                    scrollY: -window.scrollY,
+                    windowWidth: document.body.scrollWidth,
+                    windowHeight: element.scrollHeight
+                }).then(function(canvas) {
+                var imgData = canvas.toDataURL('image/png');
+                var pdf = new jsPDF('p', 'mm', 'a4');
+                var pageWidth = pdf.internal.pageSize.getWidth();
+                var pageHeight = pdf.internal.pageSize.getHeight();
+                var imgWidth = pageWidth;
+                var imgHeight = canvas.height * (pageWidth / canvas.width);
+                pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
+                pdf.save('download.pdf');
+                NProgress.done();
+            });
         };
+
+        // PDF generation function
+//        $scope.generatePDF2 = function() {
+//            NProgress.start();
+//            const element = document.getElementById('resume-preview');
+//            const opt = {
+//                margin: 2,
+//                filename: 'resume.pdf',
+//                image: { type: 'jpeg', quality: 1 },
+//                html2canvas: {
+//                    scale: 2
+//                },
+//                jsPDF: {
+//                    unit: 'mm',
+//                    format: 'a4',
+//                    orientation: 'portrait'
+//                }
+//            };
+//
+//            try {
+//                // Generate PDF
+//                html2pdf().set(opt).from(element).save();
+//            } finally {
+//                NProgress.done();
+//            }
+//        };
     });
