@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html ng-app="uuidGenerator">
+<head>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.8.2/angular.min.js"></script>
+    <style>
+        body {
+            font-family: system-ui, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .controls {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .input-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .input-group label {
+            font-weight: 500;
+        }
+        input[type="number"] {
+            width: 100px;
+            padding: 8px;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        select {
+            padding: 8px;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        button.copy {
+            background: #28a745;
+        }
+        button.copy:hover {
+            background: #218838;
+        }
+        .results {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .uuid-list {
+            margin-top: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .uuid-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+        .uuid-item:hover {
+            background: #e9ecef;
+        }
+        .options {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .format-options {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+    </style>
+</head>
+<body ng-controller="UUIDController">
+    <div class="container">
+        <div class="controls">
+            <div class="input-group">
+                <label>Quantity:</label>
+                <input type="number" ng-model="quantity" min="1" max="100">
+            </div>
+            
+            <div class="input-group">
+                <label>Version:</label>
+                <select ng-model="version">
+                    <option value="4">v4 (Random)</option>
+                    <option value="1">v1 (Time-based)</option>
+                </select>
+            </div>
+
+            <div class="format-options">
+                <div class="checkbox-group">
+                    <input type="checkbox" id="uppercase" ng-model="uppercase">
+                    <label for="uppercase">Uppercase</label>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="hyphens" ng-model="hyphens">
+                    <label for="hyphens">Hyphens</label>
+                </div>
+            </div>
+            
+            <div class="options">
+                <button ng-click="generateUUIDs()">Generate</button>
+                <button class="copy" ng-click="copyAll()">Copy All</button>
+            </div>
+        </div>
+
+        <div class="results">
+            <div class="uuid-list">
+                <div class="uuid-item" ng-repeat="uuid in uuids track by $index">
+                    <span>{{uuid}}</span>
+                    <button class="copy" ng-click="copyUUID(uuid)">Copy</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        angular.module('uuidGenerator', [])
+        .controller('UUIDController', ['$scope', function($scope) {
+            $scope.quantity = 5;
+            $scope.version = "4";
+            $scope.uppercase = false;
+            $scope.hyphens = true;
+            $scope.uuids = [];
+
+            function generateUUIDv4() {
+                return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+                    var r = Math.random() * 16 | 0,
+                        v = c == 'x' ? r : (r & 0x3 | 0x8);
+                    return v.toString(16);
+                });
+            }
+
+            function generateUUIDv1() {
+                // Simple v1 UUID implementation (not fully spec-compliant)
+                var d = new Date().getTime();
+                var uuid = 'xxxxxxxx-xxxx-1xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+                    var r = (d + Math.random()*16)%16 | 0;
+                    d = Math.floor(d/16);
+                    return (c=='x' ? r : (r&0x3|0x8)).toString(16);
+                });
+                return uuid;
+            }
+
+            function formatUUID(uuid) {
+                let formatted = uuid;
+                if (!$scope.hyphens) {
+                    formatted = formatted.replace(/-/g, '');
+                }
+                if ($scope.uppercase) {
+                    formatted = formatted.toUpperCase();
+                }
+                return formatted;
+            }
+
+            $scope.generateUUIDs = function() {
+                $scope.uuids = [];
+                const generator = $scope.version === "4" ? generateUUIDv4 : generateUUIDv1;
+                
+                for (let i = 0; i < $scope.quantity; i++) {
+                    const uuid = generator();
+                    $scope.uuids.push(formatUUID(uuid));
+                }
+            };
+
+            $scope.copyUUID = function(uuid) {
+                navigator.clipboard.writeText(uuid).then(function() {
+                    // Optional: Add feedback animation or notification
+                });
+            };
+
+            $scope.copyAll = function() {
+                navigator.clipboard.writeText($scope.uuids.join('\n')).then(function() {
+                    // Optional: Add feedback animation or notification
+                });
+            };
+
+            // Generate initial UUIDs
+            $scope.generateUUIDs();
+        }]);
+    </script>
+</body>
+</html>

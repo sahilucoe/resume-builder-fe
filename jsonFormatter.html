@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html ng-app="jsonFormatter">
+<head>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.8.2/angular.min.js"></script>
+    <style>
+        body {
+            font-family: system-ui, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            display: flex;
+            gap: 20px;
+            height: calc(100vh - 100px);
+        }
+        .panel {
+            flex: 1;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+        }
+        .panel-header {
+            padding: 15px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+            border-radius: 8px 8px 0 0;
+        }
+        .panel-content {
+            flex: 1;
+            padding: 15px;
+            overflow: auto;
+        }
+        textarea {
+            width: 100%;
+            height: 100%;
+            border: none;
+            resize: none;
+            font-family: monospace;
+            font-size: 14px;
+            line-height: 1.5;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+        pre {
+            margin: 0;
+            white-space: pre-wrap;
+            font-family: monospace;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        .error {
+            color: #dc3545;
+            padding: 10px;
+            background: #fff5f5;
+            border-radius: 4px;
+            margin-top: 10px;
+        }
+        .controls {
+            padding: 15px;
+            background: #f8f9fa;
+            border-top: 1px solid #dee2e6;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-right: 8px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .string { color: #008000; }
+        .number { color: #0000ff; }
+        .boolean { color: #b22222; }
+        .null { color: #808080; }
+        .key { color: #a52a2a; }
+    </style>
+</head>
+<body ng-controller="FormatterController">
+    <div class="container">
+        <div class="panel">
+            <div class="panel-header">
+                <h3>Input JSON</h3>
+            </div>
+            <div class="panel-content">
+                <textarea ng-model="inputJson" placeholder="Paste your JSON here"></textarea>
+            </div>
+            <div class="controls">
+                <button ng-click="formatJson()">Format</button>
+                <button ng-click="minifyJson()">Minify</button>
+                <button ng-click="clearJson()">Clear</button>
+            </div>
+        </div>
+        
+        <div class="panel">
+            <div class="panel-header">
+                <h3>Formatted Output</h3>
+            </div>
+            <div class="panel-content">
+                <pre ng-bind-html="formattedOutput | trust"></pre>
+                <div ng-if="error" class="error">{{ error }}</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        angular.module('jsonFormatter', [])
+        .filter('trust', ['$sce', function($sce) {
+            return function(htmlContent) {
+                return $sce.trustAsHtml(htmlContent);
+            };
+        }])
+        .controller('FormatterController', ['$scope', function($scope) {
+            $scope.inputJson = '';
+            $scope.formattedOutput = '';
+            $scope.error = null;
+
+            function syntaxHighlight(json) {
+                if (typeof json !== 'string') {
+                    json = JSON.stringify(json, null, 2);
+                }
+                return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (match) {
+                    let cls = 'number';
+                    if (/^"/.test(match)) {
+                        if (/:$/.test(match)) {
+                            cls = 'key';
+                            match = match.replace(':', '');
+                        } else {
+                            cls = 'string';
+                        }
+                    } else if (/true|false/.test(match)) {
+                        cls = 'boolean';
+                    } else if (/null/.test(match)) {
+                        cls = 'null';
+                    }
+                    return '<span class="' + cls + '">' + match + '</span>';
+                });
+            }
+
+            $scope.formatJson = function() {
+                try {
+                    if (!$scope.inputJson.trim()) {
+                        throw new Error('Please enter JSON to format');
+                    }
+                    const parsed = JSON.parse($scope.inputJson);
+                    const formatted = JSON.stringify(parsed, null, 2);
+                    $scope.formattedOutput = syntaxHighlight(formatted);
+                    $scope.error = null;
+                } catch (e) {
+                    $scope.error = 'Invalid JSON: ' + e.message;
+                    $scope.formattedOutput = '';
+                }
+            };
+
+            $scope.minifyJson = function() {
+                try {
+                    if (!$scope.inputJson.trim()) {
+                        throw new Error('Please enter JSON to minify');
+                    }
+                    const parsed = JSON.parse($scope.inputJson);
+                    const minified = JSON.stringify(parsed);
+                    $scope.formattedOutput = syntaxHighlight(minified);
+                    $scope.error = null;
+                } catch (e) {
+                    $scope.error = 'Invalid JSON: ' + e.message;
+                    $scope.formattedOutput = '';
+                }
+            };
+
+            $scope.clearJson = function() {
+                $scope.inputJson = '';
+                $scope.formattedOutput = '';
+                $scope.error = null;
+            };
+        }]);
+    </script>
+</body>
+</html>

@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html ng-app="encoderApp">
+<head>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.8.2/angular.min.js"></script>
+    <style>
+        body {
+            font-family: system-ui, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .controls {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+        .panels {
+            display: flex;
+            gap: 20px;
+            height: calc(100vh - 200px);
+        }
+        .panel {
+            flex: 1;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+        }
+        .panel-header {
+            padding: 15px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+            border-radius: 8px 8px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .panel-content {
+            flex: 1;
+            padding: 15px;
+            overflow: auto;
+        }
+        textarea {
+            width: 100%;
+            height: 100%;
+            border: none;
+            resize: none;
+            font-family: monospace;
+            font-size: 14px;
+            line-height: 1.5;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+        select {
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid #dee2e6;
+            font-size: 14px;
+            min-width: 200px;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-right: 8px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .error {
+            color: #dc3545;
+            padding: 10px;
+            background: #fff5f5;
+            border-radius: 4px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body ng-controller="EncoderController">
+    <div class="container">
+        <div class="controls">
+            <select ng-model="selectedAlgorithm">
+                <option value="base64">Base64</option>
+                <option value="uri">URI Component</option>
+                <option value="hex">Hex</option>
+                <option value="binary">Binary</option>
+                <option value="morse">Morse Code</option>
+                <option value="rot13">ROT13</option>
+            </select>
+            <button ng-click="encode()">Encode →</button>
+            <button ng-click="decode()">← Decode</button>
+            <button ng-click="clear()">Clear</button>
+        </div>
+        
+        <div class="panels">
+            <div class="panel">
+                <div class="panel-header">
+                    <h3>Input</h3>
+                </div>
+                <div class="panel-content">
+                    <textarea ng-model="input" placeholder="Enter text to encode/decode"></textarea>
+                </div>
+            </div>
+            
+            <div class="panel">
+                <div class="panel-header">
+                    <h3>Output</h3>
+                </div>
+                <div class="panel-content">
+                    <textarea ng-model="output" readonly></textarea>
+                    <div ng-if="error" class="error">{{ error }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        angular.module('encoderApp', [])
+        .controller('EncoderController', ['$scope', function($scope) {
+            $scope.input = '';
+            $scope.output = '';
+            $scope.selectedAlgorithm = 'base64';
+            $scope.error = null;
+
+            const morseCode = {
+                'A': '.-', 'B': '-...', 'C': '-.-.', 'D': '-..', 'E': '.', 'F': '..-.',
+                'G': '--.', 'H': '....', 'I': '..', 'J': '.---', 'K': '-.-', 'L': '.-..',
+                'M': '--', 'N': '-.', 'O': '---', 'P': '.--.', 'Q': '--.-', 'R': '.-.',
+                'S': '...', 'T': '-', 'U': '..-', 'V': '...-', 'W': '.--', 'X': '-..-',
+                'Y': '-.--', 'Z': '--..', '1': '.----', '2': '..---', '3': '...--',
+                '4': '....-', '5': '.....', '6': '-....', '7': '--...', '8': '---..',
+                '9': '----.', '0': '-----', ' ': '/'
+            };
+
+            const reverseMorse = Object.fromEntries(
+                Object.entries(morseCode).map(([key, value]) => [value, key])
+            );
+
+            function stringToBinary(str) {
+                return str.split('').map(char => {
+                    return char.charCodeAt(0).toString(2).padStart(8, '0');
+                }).join(' ');
+            }
+
+            function binaryToString(bin) {
+                return bin.split(' ').map(chunk => {
+                    return String.fromCharCode(parseInt(chunk, 2));
+                }).join('');
+            }
+
+            function stringToHex(str) {
+                return str.split('').map(char => {
+                    return char.charCodeAt(0).toString(16).padStart(2, '0');
+                }).join(' ');
+            }
+
+            function hexToString(hex) {
+                return hex.split(' ').map(chunk => {
+                    return String.fromCharCode(parseInt(chunk, 16));
+                }).join('');
+            }
+
+            function rot13(str) {
+                return str.replace(/[a-zA-Z]/g, function(char) {
+                    return String.fromCharCode((char <= 'Z' ? 90 : 122) >= (char = char.charCodeAt(0) + 13) 
+                        ? char 
+                        : char - 26);
+                });
+            }
+
+            $scope.encode = function() {
+                try {
+                    $scope.error = null;
+                    switch($scope.selectedAlgorithm) {
+                        case 'base64':
+                            $scope.output = btoa($scope.input);
+                            break;
+                        case 'uri':
+                            $scope.output = encodeURIComponent($scope.input);
+                            break;
+                        case 'hex':
+                            $scope.output = stringToHex($scope.input);
+                            break;
+                        case 'binary':
+                            $scope.output = stringToBinary($scope.input);
+                            break;
+                        case 'morse':
+                            $scope.output = $scope.input.toUpperCase().split('').map(char => 
+                                morseCode[char] || char).join(' ');
+                            break;
+                        case 'rot13':
+                            $scope.output = rot13($scope.input);
+                            break;
+                    }
+                } catch(e) {
+                    $scope.error = 'Encoding error: ' + e.message;
+                    $scope.output = '';
+                }
+            };
+
+            $scope.decode = function() {
+                try {
+                    $scope.error = null;
+                    switch($scope.selectedAlgorithm) {
+                        case 'base64':
+                            $scope.output = atob($scope.input);
+                            break;
+                        case 'uri':
+                            $scope.output = decodeURIComponent($scope.input);
+                            break;
+                        case 'hex':
+                            $scope.output = hexToString($scope.input);
+                            break;
+                        case 'binary':
+                            $scope.output = binaryToString($scope.input);
+                            break;
+                        case 'morse':
+                            $scope.output = $scope.input.split(' ').map(code => 
+                                reverseMorse[code] || code).join('');
+                            break;
+                        case 'rot13':
+                            $scope.output = rot13($scope.input);
+                            break;
+                    }
+                } catch(e) {
+                    $scope.error = 'Decoding error: ' + e.message;
+                    $scope.output = '';
+                }
+            };
+
+            $scope.clear = function() {
+                $scope.input = '';
+                $scope.output = '';
+                $scope.error = null;
+            };
+        }]);
+    </script>
+</body>
+</html>

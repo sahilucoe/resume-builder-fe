@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html ng-app="qrConverterApp">
+<head>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.8.2/angular.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+    <style>
+        body {
+            font-family: system-ui, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .panels {
+            display: flex;
+            gap: 20px;
+            min-height: 400px;
+        }
+        .panel {
+            flex: 1;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+        }
+        .panel-header {
+            padding: 15px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+            border-radius: 8px 8px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .panel-content {
+            flex: 1;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+        .input-group {
+            width: 100%;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        input[type="file"] {
+            display: none;
+        }
+        .qr-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            width: 100%;
+            max-width: 200px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .error {
+            color: #dc3545;
+            padding: 10px;
+            background: #fff5f5;
+            border-radius: 4px;
+            width: 100%;
+            text-align: center;
+        }
+        .controls {
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .qr-options {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        select {
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid #dee2e6;
+        }
+        #qrCanvas {
+            margin: 20px 0;
+            max-width: 100%;
+        }
+    </style>
+</head>
+<body ng-controller="QRController">
+    <div class="container">
+        <div class="controls">
+            <div class="qr-options">
+                <select ng-model="qrSize" ng-change="generateQR()">
+                    <option value="4">Small (4)</option>
+                    <option value="8">Medium (8)</option>
+                    <option value="12">Large (12)</option>
+                </select>
+                <select ng-model="errorCorrection" ng-change="generateQR()">
+                    <option value="L">Low</option>
+                    <option value="M">Medium</option>
+                    <option value="Q">Quartile</option>
+                    <option value="H">High</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="panels">
+            <div class="panel">
+                <div class="panel-header">
+                    <h3>URL Input</h3>
+                </div>
+                <div class="panel-content">
+                    <div class="input-group">
+                        <input type="text" ng-model="url" placeholder="Enter URL here" ng-change="generateQR()">
+                    </div>
+                    <button ng-click="generateQR()">Generate QR Code</button>
+                    <div ng-if="urlError" class="error">{{ urlError }}</div>
+                </div>
+            </div>
+            
+            <div class="panel">
+                <div class="panel-header">
+                    <h3>QR Code</h3>
+                </div>
+                <div class="panel-content">
+                    <div class="qr-container">
+                        <canvas id="qrCanvas"></canvas>
+                        <button ng-click="downloadQR()">Download QR Code</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        angular.module('qrConverterApp', [])
+        .controller('QRController', ['$scope', function($scope) {
+            $scope.url = '';
+            $scope.urlError = '';
+            $scope.qrSize = 8;
+            $scope.errorCorrection = 'M';
+
+            $scope.generateQR = function() {
+                try {
+                    if (!$scope.url) {
+                        $scope.urlError = 'Please enter a URL';
+                        return;
+                    }
+
+                    // Try to create a URL object to validate
+                    try {
+                        new URL($scope.url);
+                    } catch (e) {
+                        $scope.urlError = 'Please enter a valid URL';
+                        return;
+                    }
+
+                    $scope.urlError = '';
+                    
+                    // Generate QR code
+                    var typeNumber = parseInt($scope.qrSize);
+                    var qr = qrcode(typeNumber, $scope.errorCorrection);
+                    qr.addData($scope.url);
+                    qr.make();
+
+                    // Get canvas and draw QR code
+                    var canvas = document.getElementById('qrCanvas');
+                    var size = 300;
+                    canvas.width = size;
+                    canvas.height = size;
+                    var ctx = canvas.getContext('2d');
+                    
+                    // Clear previous content
+                    ctx.fillStyle = '#FFFFFF';
+                    ctx.fillRect(0, 0, size, size);
+
+                    // Draw QR code
+                    var modules = qr.getModuleCount();
+                    var tileSize = size / modules;
+                    
+                    for (var row = 0; row < modules; row++) {
+                        for (var col = 0; col < modules; col++) {
+                            ctx.fillStyle = qr.isDark(row, col) ? '#000000' : '#FFFFFF';
+                            var x = col * tileSize;
+                            var y = row * tileSize;
+                            ctx.fillRect(x, y, tileSize, tileSize);
+                        }
+                    }
+                } catch (error) {
+                    $scope.urlError = 'Error generating QR code: ' + error.message;
+                }
+            };
+
+            $scope.downloadQR = function() {
+                var canvas = document.getElementById('qrCanvas');
+                if (canvas) {
+                    var link = document.createElement('a');
+                    link.download = 'qrcode.png';
+                    link.href = canvas.toDataURL('image/png');
+                    link.click();
+                }
+            };
+
+            // Initialize with default values
+            $scope.generateQR();
+        }]);
+    </script>
+</body>
+</html>
