@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html ng-app="utilityHub">
+<head>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.8.2/angular.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --hover-color: #1d4ed8;
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: var(--bg-color);
+            color: var(--text-primary);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding: 2rem 0;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            color: var(--primary-color);
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+            padding: 1rem;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 1.5rem;
+            transition: transform 0.2s, box-shadow 0.2s;
+            cursor: pointer;
+            border: 1px solid #e2e8f0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .icon {
+            width: 48px;
+            height: 48px;
+            margin-bottom: 1rem;
+            color: var(--primary-color);
+        }
+
+        .card h3 {
+            margin: 0 0 0.5rem 0;
+            font-size: 1.2rem;
+            color: var(--text-primary);
+        }
+
+        .card p {
+            margin: 0;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        .category {
+            margin-bottom: 3rem;
+        }
+
+        .category-title {
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            padding-left: 1rem;
+            border-left: 4px solid var(--primary-color);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            header {
+                padding: 1rem 0;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            .grid {
+                gap: 1rem;
+            }
+        }
+    </style>
+</head>
+<body ng-controller="UtilityController">
+    <div class="container">
+        <header>
+            <h1>Developer Utilities</h1>
+            <div class="subtitle">A collection of essential tools for developers</div>
+        </header>
+
+        <div class="category">
+            <h2 class="category-title">Data Formatting & Conversion</h2>
+            <div class="grid">
+                <a href="/json-formatter" class="card">
+                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M4 17l6-6-6-6m8 14h8"/>
+                    </svg>
+                    <h3>JSON Formatter</h3>
+                    <p>Format, validate, and beautify JSON data with syntax highlighting</p>
+                </a>
+
+                <a href="/encoder-decoder" class="card">
+                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M8 7H4a2 2 0 00-2 2v10a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2h-4M8 7V5a2 2 0 012-2h4a2 2 0 012 2v2M8 7h8"/>
+                    </svg>
+                    <h3>Encoder/Decoder</h3>
+                    <p>Encode and decode text using various algorithms</p>
+                </a>
+
+                <a href="/qr-generator" class="card">
+                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M3 3h6v6H3zM15 3h6v6h-6zM3 15h6v6H3zM15 15h6v6h-6z"/>
+                    </svg>
+                    <h3>QR Code Generator</h3>
+                    <p>Generate QR codes from URLs and text</p>
+                </a>
+            </div>
+        </div>
+
+        <div class="category">
+            <h2 class="category-title">Developer Tools</h2>
+            <div class="grid">
+                <a href="/uuid-generator" class="card">
+                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M4 7v10l8 5V12l8-5V2l-8 5z"/>
+                    </svg>
+                    <h3>UUID Generator</h3>
+                    <p>Generate multiple UUIDs in various formats</p>
+                </a>
+
+                <a href="/hash-generator" class="card">
+                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 4v6m0 4v6M8 8l8 8M16 8l-8 8"/>
+                    </svg>
+                    <h3>Hash Generator</h3>
+                    <p>Generate MD5, SHA-1, SHA-256, and other hashes</p>
+                </a>
+
+                <a href="/password-generator" class="card">
+                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 15v2m0 0v2m0-2h2m-2 0H8"/>
+                        <rect x="3" y="11" width="18" height="11" rx="2"/>
+                        <path d="M7 11V7a5 5 0 0110 0v4"/>
+                    </svg>
+                    <h3>Password Generator</h3>
+                    <p>Create secure passwords with custom requirements</p>
+                </a>
+            </div>
+        </div>
+
+        <div class="category">
+            <h2 class="category-title">Text & Document Tools</h2>
+            <div class="grid">
+                <a href="/resume-generator" class="card">
+                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M4 4v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6H6a2 2 0 00-2 2z"/>
+                        <path d="M14 2v6h6"/>
+                    </svg>
+                    <h3>Resume Generator</h3>
+                    <p>Create professional resumes with customizable templates</p>
+                </a>
+
+                <a href="/markdown-editor" class="card">
+                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M14 3v4a1 1 0 001 1h4"/>
+                        <path d="M17 21H7a2 2 0 01-2-2V5a2 2 0 012-2h7l5 5v11a2 2 0 01-2 2z"/>
+                    </svg>
+                    <h3>Markdown Editor</h3>
+                    <p>Edit and preview Markdown with real-time rendering</p>
+                </a>
+
+                <a href="/diff-checker" class="card">
+                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M16 18l2-2-2-2"/>
+                        <path d="M8 6l-2 2 2 2"/>
+                        <path d="M14 16h4"/>
+                        <path d="M6 8h4"/>
+                    </svg>
+                    <h3>Diff Checker</h3>
+                    <p>Compare text and find differences between documents</p>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        angular.module('utilityHub', [])
+        .controller('UtilityController', ['$scope', function($scope) {
+            // Controller logic can be added here if needed
+        }]);
+    </script>
+</body>
+</html>
